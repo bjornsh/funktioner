@@ -26,8 +26,10 @@ funk_antal_departure_hpl <- function(df){
   df$routes %>%
     left_join(., gtfs$trips, by = "route_id") %>% 
     left_join(., gtfs$stop_times, by = "trip_id") %>% 
+    # create hpl_id
     mutate(hpl_id = as.integer(substr(stop_id, 8, 13))) %>% 
     select(hpl_id, trip_id) %>% 
+    # departures per hpl
     group_by(hpl_id) %>% 
     summarise(antal_departure = n())
 }
@@ -38,9 +40,12 @@ funk_antal_departure_hpl <- function(df){
 funk_antal_linjer_hpl <- function(df){
   df$routes %>%left_join(., gtfs$trips, by = "route_id") %>% 
     left_join(., gtfs$stop_times, by = "trip_id") %>% 
+    # create hpl_id
     mutate(hpl_id = as.integer(substr(stop_id, 8, 13))) %>% 
-    select(hpl_id, route_short_name) %>% 
+    select(hpl_id, route_short_name) %>%
+    # remove duplicates
     distinct() %>% 
+    # lines per hpl
     group_by(hpl_id) %>% 
     summarise(antal_linjer = n())
 }
@@ -55,7 +60,7 @@ funk_hpl_koordinat <- function(df){
     # create hpl_id
     mutate(hpl_id = as.integer(substr(stop_id, 8, 13))) %>% 
     select(hpl_id, stop_lat, stop_lon) %>% 
-    # create on point per hpl
+    # create one point per hpl
     group_by(hpl_id) %>% 
     summarise(stop_lat = mean(stop_lat), 
               stop_lon = mean(stop_lon)) %>% 
@@ -74,16 +79,23 @@ funk_hpl_koordinat <- function(df){
 # create SF with most common shape per line
 funk_linje_network <- function(df){
   
+  # identify most common shape, ie route, per line
   mest_frekvent_shape <- df$trips %>% 
     left_join(., df$routes, by = "route_id") %>% 
+    # calculate number of trips per route and line
     group_by(route_short_name, shape_id) %>% 
     summarise(n = n()) %>% 
-    filter(n == max(n)) %>% # det kan finnas 
+    # remove all routes except the most common
+    filter(n == max(n)) %>% 
     ungroup() %>% 
     select(-n)
   
+  # create linestring for each line
   df$shapes %>% 
+    # remove all routes that are not the most common per line
     filter(shape_id %in% mest_frekvent_shape$shape_id) %>% 
+    # create SF linestring
     shapes_as_sf(., crs = 4326) %>% 
+    # add line name
     left_join(., mest_frekvent_shape, by = "shape_id")
 }
