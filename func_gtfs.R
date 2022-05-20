@@ -3,6 +3,7 @@
 ##################################################################################
 
 # Bra att ha funktioner för hantering av GTFS data
+# laddar gtfs_obj med tidytransit::read_gtfs() 
 
 
 
@@ -99,3 +100,17 @@ funk_linje_network <- function(df){
     # add line name
     left_join(., mest_frekvent_shape, by = "shape_id")
 }
+
+
+# filter gtfs_obj by trips related to certain line types, eg remove all trips, routes etc for skolbussar
+funk_remove_linjetyp <- function(df, remove_linjetyp){
+  route_trip_include = df$routes %>% 
+    left_join(., df$trips, by = "route_id") %>% 
+    filter(route_desc %notin% remove_linjetyp) %>%
+    select(trip_id) %>% 
+    distinct()
+  
+  filter_feed_by_trips(df, unique(route_trip_include$trip_id)) 
+  }
+
+
