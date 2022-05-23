@@ -25,8 +25,8 @@ funk_hpl_id_namn <- function(df){
 ### beräkna antal avgånger per hållplats inom utvalda perioden
 funk_antal_departure_hpl <- function(df){
   df$routes %>%
-    left_join(., gtfs$trips, by = "route_id") %>% 
-    left_join(., gtfs$stop_times, by = "trip_id") %>% 
+    left_join(., df$trips, by = "route_id") %>% 
+    left_join(., df$stop_times, by = "trip_id") %>% 
     # create hpl_id
     mutate(hpl_id = as.integer(substr(stop_id, 8, 13))) %>% 
     select(hpl_id, trip_id) %>% 
@@ -39,8 +39,8 @@ funk_antal_departure_hpl <- function(df){
 
 ### beräkna antal linjer per hållplats inom utvalda perioden
 funk_antal_linjer_hpl <- function(df){
-  df$routes %>%left_join(., gtfs$trips, by = "route_id") %>% 
-    left_join(., gtfs$stop_times, by = "trip_id") %>% 
+  df$routes %>% left_join(., df$trips, by = "route_id") %>% 
+    left_join(., df$stop_times, by = "trip_id") %>% 
     # create hpl_id
     mutate(hpl_id = as.integer(substr(stop_id, 8, 13))) %>% 
     select(hpl_id, route_short_name) %>%
@@ -49,6 +49,21 @@ funk_antal_linjer_hpl <- function(df){
     # lines per hpl
     group_by(hpl_id) %>% 
     summarise(antal_linjer = n())
+}
+
+
+### Alla linjer per hållplats
+funk_linjer_hpl = function(df){
+  df$routes %>% left_join(., df$trips, by = "route_id") %>% 
+    left_join(., df$stop_times, by = "trip_id") %>% 
+    # create hpl_id
+    mutate(hpl_id = as.integer(substr(stop_id, 8, 13))) %>% 
+    select(hpl_id, route_short_name) %>%
+    # remove duplicates
+    distinct() %>% 
+    # lines per hpl
+    group_by(hpl_id) %>% 
+    summarise(linjer = paste(route_short_name, collapse = ","))
 }
 
 
