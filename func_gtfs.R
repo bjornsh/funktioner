@@ -103,7 +103,12 @@ funk_linje_network <- function(df){
     summarise(n = n()) %>% 
     # remove all routes except the most common
     filter(n == max(n)) %>% 
+    # in case both directions have same number of journeys, remove one 
     ungroup() %>% 
+    group_by(route_short_name) %>% 
+    filter(row_number() == 1) %>% 
+    ungroup() %>% 
+    # remove variable
     select(-n)
   
   # create linestring for each line
