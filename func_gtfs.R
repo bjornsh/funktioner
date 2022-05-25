@@ -12,6 +12,30 @@
 ### Functions
 ##################################################################################
 
+### correct spelling in whole GTFS object
+# developed by: Tommy Eriksson (Uppsala kommun)
+funk_spelling <- function(x) {
+  for(i in 1:length(x)){
+    for(j in 1:length(x[[i]])){
+      if( is.character(x[[i]][[j]])){
+        x[[i]][[j]] =  str_replace_all(x[[i]][[j]],
+                                       c("Ã„" = "Ä",
+                                         "Ã¤" = "ä",
+                                         "Ã–" = "Ö",
+                                         "Ã¶" = "ö",
+                                         "Ã…" = "Å",
+                                         "Ã¥" = "å",
+                                         "Ã©" = "é",
+                                         "Ã¼" = "ü"))
+      }
+    }
+  }
+  return(x)
+}
+
+
+
+
 ### Create df med korrekt hpl name and hpl ID
 funk_hpl_id_namn <- function(df){
   df$stops %>% 
