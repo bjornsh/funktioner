@@ -158,3 +158,78 @@ funk_remove_linjetyp <- function(df, remove_linjetyp){
   }
 
 
+### calculate overlap between all combinations of lines using a stop
+funk_linje_overlap = function(gtfs_obj, which_hpl, buffer_meter) {
+  # identify all lines using a certain hpl
+  hpl_linje_filtered = funk_linjer_hpl(gtfs_obj) %>% filter(hpl_id == which_hpl)
+  
+  # create character string with all lines using a certain hpl
+  hpl_linje_filtered_vector = as.vector(str_split(hpl_linje_filtered$linjer, ",", n = Inf, simplify = FALSE)[[1]])
+  
+  # create frame with all line combinations for a hpl
+  frame = merge(hpl_linje_filtered_vector, hpl_linje_filtered_vector) %>% 
+    # remove duplicates
+    filter(x != y) %>% 
+    # remove duplicates in other direction
+    mutate(concat = ifelse(x < y, paste0(x, "_", y), paste0(y, "_", x))) %>%
+    distinct(concat, .keep_all = TRUE) %>%
+    select(-concat) 
+  
+  # create line network for selected lines
+  selected_lines_sf = funk_linje_network(gtfs_obj) %>%
+    filter(route_short_name %in% hpl_linje_filtered_vector)
+
+  # create buffer around each line
+  selected_lines_buff = selected_lines_sf %>%
+    st_transform(3006) %>%
+    st_buffer(., buffer_meter) %>%
+    st_make_valid() 
+  
+  # calculate buffered area for each line
+  area_linje = selected_lines_sf %>%
+    st_transform(3006) %>%
+    st_buffer(., buffer_meter) %>%
+    st_make_valid() %>%
+    mutate(area_linje = st_area(.)) %>%
+    as.data.frame() %>%
+    select(route_short_name, area_linje)
+  
+  
+  ### loop through all line combinations and intersect körsträckor
+  xxx = c()
+  
+  for(i in 1:nrow(frame)) {
+    xxx = rbind(xxx, st_intersection(filter(selected_lines_buff, route_short_name == frame[i,1]),
+                                     filter(selected_lines_buff, route_short_name == frame[i,2])))
+  }
+  
+  # create area of overlap for each line combination
+  resultat = xxx %>%
+    rename(linje1 = route_short_name.1,
+           linje2 = route_short_name) %>%
+    # calculate size of overlapping area for first line
+    mutate(area_overlap = st_area(geometry)) %>%
+    left_join(., area_linje, by = c("linje1" = "route_short_name")) %>%
+    rename(area_linje1 = area_linje) %>%
+    # calculate size of overlapping area for second line
+    left_join(., area_linje, by = c("linje2" = "route_short_name")) %>%
+    rename(area_linje2 = area_linje) %>%
+    # convert to df
+    as.data.frame() %>%
+    # calculate share of körsträcka that overlap with other line
+    mutate(andel_overlap_linje1 = round(as.numeric(area_overlap / area_linje1), 3),
+           andel_overlap_linje2 = round(as.numeric(area_overlap / area_linje2), 3)) %>%
+    mutate(mean_overlap = round((andel_overlap_linje1 + andel_overlap_linje2) / 2, 3)) %>%
+    # create output
+    select(linje1, linje2,
+           area_linje1, area_linje2,
+           area_overlap,
+           andel_overlap_linje1, andel_overlap_linje2, mean_overlap) %>%
+    # add hpl id so multiple df for different hpl can be appended
+    mutate(hpl_id = which_hpl)
+  
+  print(resultat)
+}
+
+
+
