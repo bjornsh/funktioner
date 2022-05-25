@@ -12,21 +12,25 @@
 ### Functions
 ##################################################################################
 
+
+####################
 ### correct spelling in whole GTFS object
-# developed by: Tommy Eriksson (Uppsala kommun)
-funk_spelling <- function(x) {
-  for(i in 1:length(x)){
-    for(j in 1:length(x[[i]])){
-      if( is.character(x[[i]][[j]])){
-        x[[i]][[j]] =  str_replace_all(x[[i]][[j]],
-                                       c("Ã„" = "Ä",
-                                         "Ã¤" = "ä",
-                                         "Ã–" = "Ö",
-                                         "Ã¶" = "ö",
-                                         "Ã…" = "Å",
-                                         "Ã¥" = "å",
-                                         "Ã©" = "é",
-                                         "Ã¼" = "ü"))
+### developed by: Tommy Eriksson (Uppsala kommun)
+####################
+
+funk_spelling <- function(gtfs_obj) {
+  for(i in 1:length(gtfs_obj)){
+    for(j in 1:length(gtfs_obj[[i]])){
+      if( is.character(gtfs_obj[[i]][[j]])){
+        gtfs_obj[[i]][[j]] =  str_replace_all(gtfs_obj[[i]][[j]],
+                                              c("Ã„" = "Ä",
+                                                "Ã¤" = "ä",
+                                                "Ã–" = "Ö",
+                                                "Ã¶" = "ö",
+                                                "Ã…" = "Å",
+                                                "Ã¥" = "å",
+                                                "Ã©" = "é",
+                                                "Ã¼" = "ü"))
       }
     }
   }
@@ -34,9 +38,10 @@ funk_spelling <- function(x) {
 }
 
 
-
-
+####################
 ### Create df med korrekt hpl name and hpl ID
+####################
+
 funk_hpl_id_namn <- function(df){
   df$stops %>% 
     # create hpl_id
@@ -46,7 +51,10 @@ funk_hpl_id_namn <- function(df){
 }
 
 
-### beräkna antal avgånger per hållplats inom utvalda perioden
+####################
+### Beräkna antal avgånger per hållplats
+####################
+
 funk_antal_departure_hpl <- function(df){
   df$routes %>%
     left_join(., df$trips, by = "route_id") %>% 
@@ -60,8 +68,10 @@ funk_antal_departure_hpl <- function(df){
 }
 
 
+####################
+### Beräkna antal linjer per hållplats
+####################
 
-### beräkna antal linjer per hållplats inom utvalda perioden
 funk_antal_linjer_hpl <- function(df){
   df$routes %>% left_join(., df$trips, by = "route_id") %>% 
     left_join(., df$stop_times, by = "trip_id") %>% 
@@ -76,7 +86,10 @@ funk_antal_linjer_hpl <- function(df){
 }
 
 
+####################
 ### Alla linjer per hållplats
+####################
+
 funk_linjer_hpl = function(df){
   df$routes %>% left_join(., df$trips, by = "route_id") %>% 
     left_join(., df$stop_times, by = "trip_id") %>% 
@@ -91,9 +104,10 @@ funk_linjer_hpl = function(df){
 }
 
 
-
-
+####################
 ### Create SF object with one coordinate per hpl instead of one coordinate per hållplatsläge
+####################
+
 funk_hpl_koordinat <- function(df){
   
   df$stops %>% 
@@ -115,8 +129,10 @@ funk_hpl_koordinat <- function(df){
 }
 
 
-
-# create SF with most common shape per line
+####################
+### Create SF with most common shape per line
+####################
+ 
 funk_linje_network <- function(df){
   
   # identify most common shape, ie route, per line
@@ -146,7 +162,10 @@ funk_linje_network <- function(df){
 }
 
 
-# filter gtfs_obj by trips related to certain line types, eg remove all trips, routes etc for skolbussar
+####################
+### Filter gtfs_obj by trips related to certain line types, eg remove all trips, routes etc for skolbussar
+####################
+
 funk_remove_linjetyp <- function(df, remove_linjetyp){
   route_trip_include = df$routes %>% 
     left_join(., df$trips, by = "route_id") %>% 
@@ -158,7 +177,10 @@ funk_remove_linjetyp <- function(df, remove_linjetyp){
   }
 
 
-### calculate overlap between all combinations of lines using a stop
+####################
+### Calculate overlap between all combinations of lines using a stop
+####################
+
 funk_linje_overlap = function(gtfs_obj, which_hpl, buffer_meter) {
   # identify all lines using a certain hpl
   hpl_linje_filtered = funk_linjer_hpl(gtfs_obj) %>% filter(hpl_id == which_hpl)
@@ -230,6 +252,3 @@ funk_linje_overlap = function(gtfs_obj, which_hpl, buffer_meter) {
   
   print(resultat)
 }
-
-
-
