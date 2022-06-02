@@ -34,7 +34,7 @@ funk_spelling <- function(gtfs_obj) {
       }
     }
   }
-  return(x)
+  return(gtfs_obj)
 }
 
 
