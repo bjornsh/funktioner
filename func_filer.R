@@ -135,6 +135,20 @@ nextweekday <- function(date, wday) {
 `%notin%` <- Negate(`%in%`)
 
 
+# identify cell size in SCB rutnät 
+scb_rutstorlek <- function(df, position){
+  df %>%
+    # convert to df if eg SF object
+    as.data.frame() %>% 
+    # numerical position of cell ID column 
+    mutate(x = case_when(max(substr(.[,position], 10, 13)) == "9900" ~ "100",
+                         max(substr(.[,position], 10, 13)) == "9500" ~ "500",
+                         max(substr(.[,position], 10, 13)) == "9000" ~ "1000",
+                         TRUE ~ "-9999")) %>% 
+    select(x) %>%
+    unique() %>% 
+    pull()
+}
 
 
 
