@@ -69,6 +69,25 @@ funk_antal_departure_hpl <- function(df){
 
 
 ####################
+### Beräkna antal avgånger per timma och linje för varje hållplats 
+####################
+
+antal_departure_per_hpl_line_hr = function(df){
+  df$routes %>%
+    left_join(., df$trips, by = "route_id") %>% 
+    left_join(., df$stop_times, by = "trip_id") %>% 
+    # create hpl_id
+    mutate(hpl_id = as.integer(substr(stop_id, 8, 13)),
+           dep_hr = substr(departure_time,1,2)) %>% 
+    select(hpl_id, route_short_name, dep_hr) %>% 
+    group_by(hpl_id, route_short_name, dep_hr) %>% 
+    tally()
+}
+
+
+
+
+####################
 ### Beräkna antal linjer per hållplats
 ####################
 

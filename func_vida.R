@@ -130,7 +130,6 @@ funk_incheck = function(con, datum_start, datum_stop){ # datum = "YYYY-MM-DD"
 
 
 
-
 ####################
 ### Atries: antal personer som byter vid en hållplats   
 ####################
