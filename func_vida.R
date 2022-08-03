@@ -33,7 +33,7 @@ funk_apr_hpl_all_month = function(con){
   fetch_dat =  dbSendQuery(con, "
 SELECT hplid, Year, Month, Boardings = SUM(Boardings), Alightings = SUM(Alightings)
 FROM
-(SELECT hplid = Value, Year, Month, StopPositionId, Boardings, Alightings 
+(SELECT hpl_id = Value, Year, Month, StopPositionId, Boardings, Alightings 
   FROM [ULDataLake].[DilaxExtract].[StopProjectedDailySum]
 
   LEFT JOIN [ULDataLake].[DilaxTransform].[Month]
@@ -60,7 +60,7 @@ funk_apr_hpl_latest_month = function(con){
   fetch_dat =  dbSendQuery(con, "
 SELECT hplid, Year, Month, Boardings = SUM(Boardings), Alightings = SUM(Alightings)
 FROM
-(SELECT hplid = Value, Year, Month, StopPositionId, Boardings, Alightings 
+(SELECT hpl_id = Value, Year, Month, StopPositionId, Boardings, Alightings 
   FROM [ULDataLake].[DilaxExtract].[StopProjectedDailySum]
 
   LEFT JOIN [ULDataLake].[DilaxTransform].[Month]
