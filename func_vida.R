@@ -31,9 +31,9 @@
 
 funk_apr_hpl_all_month = function(con){
   fetch_dat =  dbSendQuery(con, "
-SELECT hplid, Year, Month, Boardings = SUM(Boardings), Alightings = SUM(Alightings)
+SELECT hpl_id, Year, Month, Boardings = SUM(Boardings), Alightings = SUM(Alightings)
 FROM
-(SELECT hpl_id = Value, Year, Month, StopPositionId, Boardings, Alightings 
+(SELECT Value AS hpl_id, Year, Month, StopPositionId, Boardings, Alightings 
   FROM [ULDataLake].[DilaxExtract].[StopProjectedDailySum]
 
   LEFT JOIN [ULDataLake].[DilaxTransform].[Month]
@@ -42,7 +42,7 @@ FROM
   LEFT JOIN [ULDataLake].[DilaxTransform].[Stop]
   ON [ULDataLake].[DilaxExtract].[StopProjectedDailySum].[StopId] = [ULDataLake].[DilaxTransform].[Stop].[Id]
   ) AS a
-  GROUP BY hplid, Year, Month 
+  GROUP BY hpl_id, Year, Month 
   ORDER BY Year, Month ")  
   
   return(dbFetch(fetch_dat))
@@ -58,9 +58,9 @@ FROM
 
 funk_apr_hpl_latest_month = function(con){
   fetch_dat =  dbSendQuery(con, "
-SELECT hplid, Year, Month, Boardings = SUM(Boardings), Alightings = SUM(Alightings)
+SELECT hpl_id, Year, Month, Boardings = SUM(Boardings), Alightings = SUM(Alightings)
 FROM
-(SELECT hpl_id = Value, Year, Month, StopPositionId, Boardings, Alightings 
+(SELECT Value AS hpl_id, Year, Month, StopPositionId, Boardings, Alightings 
   FROM [ULDataLake].[DilaxExtract].[StopProjectedDailySum]
 
   LEFT JOIN [ULDataLake].[DilaxTransform].[Month]
@@ -69,7 +69,7 @@ FROM
   LEFT JOIN [ULDataLake].[DilaxTransform].[Stop]
   ON [ULDataLake].[DilaxExtract].[StopProjectedDailySum].[StopId] = [ULDataLake].[DilaxTransform].[Stop].[Id]
   ) AS a
-  GROUP BY hplid, Year, Month 
+  GROUP BY hpl_id, Year, Month 
   ORDER BY Year, Month ")  
   
   fetch_dat1 <- dbFetch(fetch_dat)
@@ -78,7 +78,7 @@ FROM
   apr = fetch_dat1 %>% 
     filter(Month == as.numeric(format(Sys.Date(), "%m")) - 1,
            Year == as.numeric(format(Sys.Date(), "%Y")) - 1) %>% 
-    arrange(hplid)
+    arrange(hpl_id)
   
   return(apr)
 }
