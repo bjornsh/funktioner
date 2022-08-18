@@ -12,6 +12,16 @@
 ### Längden av gång- och cykelvägar per kommun
 ####################
 
+### Ladda "gcm_vagtyp" lager från länsdatabasen
+# filer = st_layers(paste0(folder_input, list.files(folder_input, patter = "gpkg")))[1] %>% 
+#   as.vector() %>% 
+#   as.data.frame() %>% 
+#   filter(!grepl("domainmap", name),
+#          !grepl("fieldaliases", name))
+# 
+# gcm_vagtyp = st_read(paste0(folder_input, list.files(folder_input, patter = "gpkg")),
+#                      layer = pull(filter(filer, grepl("gcm_vagtyp",name, ignore.case = TRUE))))
+
 funk_gc_km_per_kommun = function(gcm_vagtyp_sf, kommun_sf){ 
   # gcm_vagtyp_sf = namn av gcm_vagtyp SF objekt (lager i NVDB länsdatabas)
   # kommun_sf = namn av kommun SF objekt
