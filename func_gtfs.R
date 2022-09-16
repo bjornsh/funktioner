@@ -3,14 +3,96 @@
 ##################################################################################
 
 # Bra att ha funktioner för hantering av GTFS data
-# laddar gtfs_obj med tidytransit::read_gtfs() 
+# för att ladda ner GTFS data från Trafiklabs API behövs det en API nyckel till GTFS Regional Static data
+# https://developer.trafiklab.se/api/gtfs-regional-static-data
 
+# laddar gtfs_obj med tidytransit::read_gtfs() 
+# för rätt encoding source funktioner med: eval(parse("https://raw.githubusercontent.com/bjornsh/funktioner/main/func_gtfs.R", encoding="UTF-8"))
 
 
 
 ##################################################################################
 ### Functions
 ##################################################################################
+
+####################
+### Table with RKM codes used by Trafiklab
+####################
+
+funk_gtfs_rkm_kod = function(){
+  lan_kod <- c("01", "03", "04", "05", "06", "07", "08", "09", "10",
+               "12", "13", "14", "17", "18", "19",
+               "20", "21", "22", "23", "24", "25", "")
+  region <- c("Stockholm", "Uppsala", "Södermanland", "Östergötland", "Jönköping",
+              "Kronoberg", "Kalmar", "Gotland", "Blekinge", "Skåne", "Halland", "Västra Götaland",
+              "Värmland", "Örebro", "Västmanland", "Dalarna", "Gävleborg", "Västernorrland",
+              "Jämtland", "Västerbotten", "Norrbotten", "SJ")
+  rkm <- c("sl", "ul", "sormland", "otraf", "SAKNAS", "krono", "klt", "gotland", "blekinge", "skane",
+           "halland", "vt", "varm", "orebro", "vl", "dt", "xt", "dintur", "SAKNAS", "SAKNAS", "SAKNAS", "sj")
+  
+  data.frame(lan_kod, region, rkm)
+}
+
+# funk_gtfs_rkm_kod()
+
+
+
+
+####################
+### Download today's GTFS zip file for specific region
+####################
+
+funk_gtfs_download <- function(rkm){
+  # create folder to store GTFS zip file
+  dir.create(file.path(getwd(), "gtfs_data"))
+  
+  # define GTFS area
+  rkm <- rkm
+  
+  # API key
+  trafiklab_key = rstudioapi::askForPassword()
+  
+  # define API url 
+  url <- paste0("https://opendata.samtrafiken.se/gtfs/", rkm, "/", rkm, ".zip?key=", trafiklab_key)
+  
+  # download GTFS zip file from API and store in folder "wd/gtfs_data" 
+  GET(url, 
+      write_disk(file.path(getwd(), "gtfs_data", paste0("gtfs_", rkm, "_", Sys.Date(), ".zip")), 
+                 overwrite=TRUE))
+}
+
+# funk_gtfs_download(rkm = "ul")
+
+
+
+####################
+### Download today's GTFS zip file for specific region and 
+### read file into R with tidytransit::read_gtfs
+####################
+
+funk_gtfs_download_read <- function(rkm){
+  # create folder to store GTFS zip file
+  dir.create(file.path(getwd(), "gtfs_data"))
+  
+  # define GTFS area
+  rkm <- rkm
+  
+  # API key
+  trafiklab_key = rstudioapi::askForPassword()
+  
+  # define API url 
+  url <- paste0("https://opendata.samtrafiken.se/gtfs/", rkm, "/", rkm, ".zip?key=", trafiklab_key)
+  
+  # download GTFS zip file from API and store in folder "wd/gtfs_data" 
+  GET(url, 
+      write_disk(file.path(getwd(), "gtfs_data", paste0("gtfs_", rkm, "_", Sys.Date(), ".zip")), 
+                 overwrite=TRUE))
+  
+  # read gtfs data with tidytransit
+  read_gtfs(file.path(getwd(), "gtfs_data", paste0("gtfs_", rkm, "_", Sys.Date(), ".zip")))
+}
+
+# test = funk_gtfs_download_read(rkm = "ul")
 
 
 ####################
@@ -83,8 +165,6 @@ antal_departure_per_hpl_line_hr = function(df){
     group_by(hpl_id, route_short_name, dep_hr) %>% 
     tally()
 }
-
-
 
 
 ####################
