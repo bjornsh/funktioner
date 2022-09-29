@@ -126,24 +126,44 @@ funk_spelling <- function(gtfs_obj) {
 ####################
 
 funk_hpl_id_lage <- function(gtfs_obj, datum){ # datum: "YYYY-MM-DD"
-  gtfs_obj %>% 
-    # filter date
-    filter_feed_by_date(., datum) %>%
-    # select stops table
-    .[2] %>%
-    # convert from list to df
-    as.data.frame() %>% 
-    # create hpl and hpl läge ID
-    mutate(hpl_id = substr(stops.stop_id, 8, 13),
-           hpl_id_lage = paste0(substr(stops.stop_id, 8, 13), "_", stops.platform_code)) %>%
-    select(hpl_namn = stops.stop_name,
-           hpl_id,
-           hpl_id_lage,
-           lat = stops.stop_lat,
-           lon = stops.stop_lon) 
+  # om GTFS har redan filtrerats för ett visst datum behövs inget datum som argument i funktionen
+  # för att undvika att två olika datum används
+  if(length(unique(gtfs_obj$.$dates_services$date)) == 1 && missing(datum)) {
+    gtfs_obj %>% 
+      # select stops table
+      .[2] %>%
+      # convert from list to df
+      as.data.frame() %>% 
+      # create hpl and hpl läge ID
+      mutate(hpl_id = substr(stops.stop_id, 8, 13),
+             hpl_id_lage = paste0(substr(stops.stop_id, 8, 13), "_", stops.platform_code)) %>%
+      select(hpl_namn = stops.stop_name,
+             hpl_id,
+             hpl_id_lage,
+             lat = stops.stop_lat,
+             lon = stops.stop_lon)
+  }
+  
+  else {
+    gtfs_obj %>% 
+      # filter date
+      filter_feed_by_date(., datum) %>%
+      # select stops table
+      .[2] %>%
+      # convert from list to df
+      as.data.frame() %>% 
+      # create hpl and hpl läge ID
+      mutate(hpl_id = substr(stops.stop_id, 8, 13),
+             hpl_id_lage = paste0(substr(stops.stop_id, 8, 13), "_", stops.platform_code)) %>%
+      select(hpl_namn = stops.stop_name,
+             hpl_id,
+             hpl_id_lage,
+             lat = stops.stop_lat,
+             lon = stops.stop_lon)
+  }
 }
 
-# funk_hpl_id_lage(dat, "2022-09-28")
+# funk_hpl_id_lage(gtfs_obj, "2022-09-28")
 
 
 ####################
