@@ -15,7 +15,7 @@
 ##################################################################################
 
 ### Download and load kommun shapefile
-funk_load_kommun <- function(){
+load_sf_kommun <- function(){
   td = tempdir()
   # create the placeholder file
   tf = tempfile(tmpdir=td, fileext=".zip")
@@ -35,11 +35,11 @@ funk_load_kommun <- function(){
   st_read(fpath, options = "ENCODING=WINDOWS-1252")
 }
 
-# kommun <- funk_load_kommun()
+# kommun <- load_sf_kommun()
 
 
 ### Download and load tätort shapefile
-funk_load_tatort <- function(){
+load_sf_tatort <- function(){
   td = tempdir()
   # create the placeholder file
   tf = tempfile(tmpdir=td, fileext=".zip")
@@ -59,7 +59,31 @@ funk_load_tatort <- function(){
   st_read(fpath, options = "ENCODING=WINDOWS-1252")
 }
 
+# tatort <- load_sf_tatort()
 
+
+### Download and load Deso shapefile
+load_sf_deso <- function(){
+  td = tempdir()
+  # create the placeholder file
+  tf = tempfile(tmpdir=td, fileext=".zip")
+  # download into the placeholder file
+  download.file("https://github.com/bjornsh/gis_data/raw/main/deso_2018_v2.zip", tf)
+  
+  # get name of the file ending with .shp
+  fname = unzip(tf, list=TRUE)$Name[grep("\\.shp$", unzip(tf, list=TRUE)$Name, ignore.case = T)]
+  
+  # unzip all files to the temporary directory
+  unzip(tf, exdir=td, overwrite=TRUE)
+  
+  # identify full path to extracted file ending with .shp
+  fpath = file.path(td, fname)
+  
+  # load the shapefile into R
+  st_read(fpath, options = "ENCODING=WINDOWS-1252")
+}
+
+# deso <- load_sf_deso()
 
 
 
