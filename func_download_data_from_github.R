@@ -32,7 +32,7 @@ load_sf_kommun <- function(){
   fpath = file.path(td, fname)
   
   # load the shapefile into R
-  st_read(fpath, options = "ENCODING=WINDOWS-1252")
+  sf::st_read(fpath, options = "ENCODING=WINDOWS-1252")
 }
 
 # kommun <- load_sf_kommun()
@@ -56,7 +56,7 @@ load_sf_tatort <- function(){
   fpath = file.path(td, fname)
   
   # load the shapefile into R
-  st_read(fpath, options = "ENCODING=WINDOWS-1252")
+  sf::st_read(fpath, options = "ENCODING=WINDOWS-1252")
 }
 
 # tatort <- load_sf_tatort()
@@ -80,7 +80,7 @@ load_sf_deso <- function(){
   fpath = file.path(td, fname)
   
   # load the shapefile into R
-  st_read(fpath, options = "ENCODING=WINDOWS-1252")
+  sf::st_read(fpath, options = "ENCODING=WINDOWS-1252")
 }
 
 # deso <- load_sf_deso()
