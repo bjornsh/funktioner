@@ -10,7 +10,6 @@
 # för rätt encoding source funktioner med: eval(parse("https://raw.githubusercontent.com/bjornsh/funktioner/main/func_gtfs.R", encoding="UTF-8"))
 
 
-
 ##################################################################################
 ### Functions
 ##################################################################################
