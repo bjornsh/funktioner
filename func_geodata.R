@@ -1,5 +1,29 @@
 
 
+### Standardised method for creating SF object from point coordinates
+
+create_sf <- function(df, lat, lon, crs){ # crs: WGS84 = 4326, SWEREF99 = 3006
+  df %>%
+    filter(!is.na(lon), !is.na(lat)) %>% # remove rows with missing data
+    mutate(lon = str_replace(lon, ",", "."), # replace decimal "," with "."
+           lat = str_replace(lat, ",", ".")) %>%
+    dplyr::mutate_at(vars(lon, lat), as.numeric) %>%   # coordinates must be numeric
+    # skapa SF object
+    sf::st_as_sf(.,
+                 coords = c("lon", "lat"),
+                 agr = "constant",
+                 crs = crs, # assign CRS
+                 stringsAsFactors = FALSE,
+                 remove = TRUE # remove coordinates from SF object
+    )
+  }
+
+# example
+# create_sf(hpl_koord, hpl_lat, hpl_lon, crs = 4326) %>% 
+#   mapview::mapview()
+
+
+
 ### Skapa centerkoordinater för SCB rutnät data
 
 # SCB rut ID är en kod för nedre vänster hörn av rutan
