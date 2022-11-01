@@ -71,7 +71,7 @@ load_sf_deso <- function(){
   download.file("https://github.com/bjornsh/gis_data/raw/main/deso_2018_v2.zip", tf)
   
   # get name of the file ending with .shp
-  fname = unzip(tf, list=TRUE)$Name[grep("\\.shp$", unzip(tf, list=TRUE)$Name, ignore.case = T)]
+  fname = unzip(tf, list=TRUE)$Name[grep("\\.gpkg$", unzip(tf, list=TRUE)$Name, ignore.case = T)]
   
   # unzip all files to the temporary directory
   unzip(tf, exdir=td, overwrite=TRUE)
