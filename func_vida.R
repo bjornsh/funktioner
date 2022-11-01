@@ -216,59 +216,59 @@ funk_byte = function(con, datum_start, datum_stop, max_sec_between_incheck){
 ####################
 ### Atries: hur ofta används en viss biljettyp   
 ####################
-[ULDataLake].[BoBULExtract].[ProductCategory]
-
-incheck = funk_incheck(con, "2022-05-01", "2022-05-03")
-
-datum_start = "2022-05-01"
-datum_stop = "2022-05-31"
-
-linje_urval = c("773", "848", "874")
-linje_urval = c()
-
-
-# hämta incheckningsdata
-incheck = 
-    ## Incheckning med kort
-    tbl(con, dbplyr::in_schema("AtriesExtract", "ACC_CHECKIN")) %>%
-      select(datum = CHECKINDATE,
-             checkin = CHECKINTIMESTAMP,
-             linje = LINIE,
-             hpl_id = EINSTIEG,
-             ticket_no = FAHRAUSWEISART, # laggt till variabel
-             ticketid = CC_SERNO_HASHED) %>%
-      # filter relevant tidsperiod
-      filter(between(datum, paste0(datum_start, " ", "00:00:00.000"),
-                     paste0(datum_stop, " ", "00:00:00.000"))) %>%
-  # fetch data
-  collect()
-
-
-# hämta ticket metadata
-ticket_meta = tbl(con, dbplyr::in_schema("AtriesExtract", "TICKTAB_ALL")) %>%
-  select(ticket_namn = TICKET_NAME,
-         ticket_no = TICKET_NO,
-         rkm = VERKEHR) %>%
-  # filter relevant rkm och biljettyp
-  filter(rkm == "7",
-         ticket_namn %LIKE% '%30%') %>%
-  select(-rkm) %>% 
-  collect()
-
-
-# slå ihop data 
-# om ett urval av linjer filtreras tas linjerna bort annars är alla linjer med
-incheck %>% 
-  left_join(., ticket_meta, by = "ticket_no") %>%  
-  filter(!is.na(ticket_namn)) %>% 
-  filter(if (exists('linje_urval') && length(linje_urval) > 0) 
-         as.character(linje) %in% linje_urval else TRUE) %>% 
-  group_by(ticketid) %>% 
-  tally() %>%  
-  ungroup() %>% 
-  summarise(medel = mean(n),
-            median = median(n),
-            max = max(n))
-
-
-
+# [ULDataLake].[BoBULExtract].[ProductCategory]
+# 
+# incheck = funk_incheck(con, "2022-05-01", "2022-05-03")
+# 
+# datum_start = "2022-05-01"
+# datum_stop = "2022-05-31"
+# 
+# linje_urval = c("773", "848", "874")
+# linje_urval = c()
+# 
+# 
+# # hämta incheckningsdata
+# incheck = 
+#     ## Incheckning med kort
+#     tbl(con, dbplyr::in_schema("AtriesExtract", "ACC_CHECKIN")) %>%
+#       select(datum = CHECKINDATE,
+#              checkin = CHECKINTIMESTAMP,
+#              linje = LINIE,
+#              hpl_id = EINSTIEG,
+#              ticket_no = FAHRAUSWEISART, # laggt till variabel
+#              ticketid = CC_SERNO_HASHED) %>%
+#       # filter relevant tidsperiod
+#       filter(between(datum, paste0(datum_start, " ", "00:00:00.000"),
+#                      paste0(datum_stop, " ", "00:00:00.000"))) %>%
+#   # fetch data
+#   collect()
+# 
+# 
+# # hämta ticket metadata
+# ticket_meta = tbl(con, dbplyr::in_schema("AtriesExtract", "TICKTAB_ALL")) %>%
+#   select(ticket_namn = TICKET_NAME,
+#          ticket_no = TICKET_NO,
+#          rkm = VERKEHR) %>%
+#   # filter relevant rkm och biljettyp
+#   filter(rkm == "7",
+#          ticket_namn %LIKE% '%30%') %>%
+#   select(-rkm) %>% 
+#   collect()
+# 
+# 
+# # slå ihop data 
+# # om ett urval av linjer filtreras tas linjerna bort annars är alla linjer med
+# incheck %>% 
+#   left_join(., ticket_meta, by = "ticket_no") %>%  
+#   filter(!is.na(ticket_namn)) %>% 
+#   filter(if (exists('linje_urval') && length(linje_urval) > 0) 
+#          as.character(linje) %in% linje_urval else TRUE) %>% 
+#   group_by(ticketid) %>% 
+#   tally() %>%  
+#   ungroup() %>% 
+#   summarise(medel = mean(n),
+#             median = median(n),
+#             max = max(n))
+# 
+# 
+# 
