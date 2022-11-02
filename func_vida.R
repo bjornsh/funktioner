@@ -57,7 +57,7 @@ FROM
 
 
 funk_apr_hpl_latest_month = function(con){
-  fetch_dat =  dbSendQuery(con, "
+fetch_dat  <- dbSendQuery(con, "
 SELECT hpl_id, Year, Month, Boardings = SUM(Boardings), Alightings = SUM(Alightings)
 FROM
 (SELECT Value AS hpl_id, Year, Month, StopPositionId, Boardings, Alightings 
@@ -75,13 +75,19 @@ FROM
   fetch_dat1 <- dbFetch(fetch_dat)
   
   # filter data to get latest data (rolling average per month for last 12 months)
-  apr = fetch_dat1 %>% 
-    filter(Month == as.numeric(format(Sys.Date(), "%m")) - 1,
-           Year == as.numeric(format(Sys.Date(), "%Y")) - 1) %>% 
+  apr <- fetch_dat1 %>%
+    filter(Year == as.numeric(format(Sys.Date(), "%Y")) - 1)
+  
+  # missing data delivery can lead to that last months data is not yet available
+  # hence need to find out which is newest month
+  max_month <- max(apr$Month)
+  
+  apr <- apr %>%
+    filter(Month == max_month) %>% 
     arrange(hpl_id)
   
   return(apr)
-}
+  }
 
 # funk_apr_hpl_latest_month(con = con)
 
