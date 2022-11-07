@@ -4,18 +4,16 @@
 
 create_sf <- function(df, lat, lon, crs){ # crs: WGS84 = 4326, SWEREF99 = 3006
   df %>%
-    filter(!is.na(lon), !is.na(lat)) %>% # remove rows with missing data
-    mutate(lon = str_replace(lon, ",", "."), # replace decimal "," with "."
-           lat = str_replace(lat, ",", ".")) %>%
-    dplyr::mutate_at(vars(lon, lat), as.numeric) %>%   # coordinates must be numeric
-    # skapa SF object
-    sf::st_as_sf(.,
-                 coords = c("lon", "lat"),
+    filter(!is.na( {{lon}} ), !is.na( {{lat}} )) %>% # remove rows with missing data
+    # Standardise column names
+    mutate( latitude  = as.numeric(gsub(",", ".", {{lat}} )),
+            longitude = as.numeric(gsub(",", ".",  {{lon}}  ))) %>% 
+    # Part 2 not working
+    sf::st_as_sf(coords = c("longitude", "latitude"),
                  agr = "constant",
                  crs = crs, # assign CRS
                  stringsAsFactors = FALSE,
-                 remove = TRUE # remove coordinates from SF object
-    )
+                 remove = TRUE)
   }
 
 # example
