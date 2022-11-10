@@ -7,9 +7,8 @@ create_sf <- function(df, lat, lon, crs){ # crs: WGS84 = 4326, SWEREF99 = 3006
     filter(!is.na( {{lon}} ), !is.na( {{lat}} )) %>% # remove rows with missing data
     # Standardise column names
     mutate( latitude  = as.numeric(gsub(",", ".", {{lat}} )),
-            longitude = as.numeric(gsub(",", ".",  {{lon}}  ))) %>% 
-    # Part 2 not working
-    sf::st_as_sf(coords = c("longitude", "latitude"),
+            longitude = as.numeric(gsub(",", ".",  {{lon}}  ))) %>%
+	sf::st_as_sf(coords = c("longitude", "latitude"),
                  agr = "constant",
                  crs = crs, # assign CRS
                  stringsAsFactors = FALSE,
