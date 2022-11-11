@@ -86,6 +86,27 @@ load_sf_deso <- function(){
 # deso <- load_sf_deso()
 
 
+
+
+###  webscraping funktion from https://gist.github.com/paulrougieux/e1ee769577b40cd9ed9db7f75e9a2cc2
+### used in download functions below
+scraplinks <- function(url){
+  # Create an html document from the url
+  webpage <- xml2::read_html(url)
+  # Extract the URLs
+  url_ <- webpage %>%
+    rvest::html_nodes("a") %>%
+    rvest::html_attr("href")
+  # Extract the link text
+  link_ <- webpage %>%
+    rvest::html_nodes("a") %>%
+    rvest::html_text()
+  return(data_frame(link = link_, url = url_))
+}
+
+
+
+
 ### Download and load Regso shapefile from SCB
 
 load_sf_regso <- function(){
@@ -95,26 +116,11 @@ load_sf_regso <- function(){
   # create the placeholder file
   tf = tempfile(tmpdir=td, fileext=".zip")
   
-  # webscraping funktion from https://gist.github.com/paulrougieux/e1ee769577b40cd9ed9db7f75e9a2cc2
-  scraplinks <- function(url){
-    # Create an html document from the url
-    webpage <- xml2::read_html(url)
-    # Extract the URLs
-    url_ <- webpage %>%
-      rvest::html_nodes("a") %>%
-      rvest::html_attr("href")
-    # Extract the link text
-    link_ <- webpage %>%
-      rvest::html_nodes("a") %>%
-      rvest::html_text()
-    return(data_frame(link = link_, url = url_))
-  }
-  
   # find url on download website
   links = scraplinks("https://www.scb.se/vara-tjanster/oppna-data/oppna-geodata/regso/")
   
   # download into the placeholder file
-  download.file(paste0("https://www.scb.se/",
+  download.file(paste0("https://www.scb.se",
                        links[links$link == "Geopackage (zip fil)",][[2]]), 
                 tf)
   
@@ -144,26 +150,11 @@ load_sf_tatort <- function(){
     # create the placeholder file
     tf = tempfile(tmpdir=td, fileext=".zip")
     
-    # webscraping funktion from https://gist.github.com/paulrougieux/e1ee769577b40cd9ed9db7f75e9a2cc2
-    scraplinks <- function(url){
-      # Create an html document from the url
-      webpage <- xml2::read_html(url)
-      # Extract the URLs
-      url_ <- webpage %>%
-        rvest::html_nodes("a") %>%
-        rvest::html_attr("href")
-      # Extract the link text
-      link_ <- webpage %>%
-        rvest::html_nodes("a") %>%
-        rvest::html_text()
-      return(data_frame(link = link_, url = url_))
-    }
-    
     # find url on download website
     links = scraplinks("https://www.scb.se/vara-tjanster/oppna-data/oppna-geodata/tatorter/")
     
     # download into the placeholder file
-    download.file(paste0("https://www.scb.se/",
+    download.file(paste0("https://www.scb.se",
                          links[links$link == "Geopackage (zip-fil)",][[2]]), 
                   tf)
     
@@ -183,3 +174,25 @@ load_sf_tatort <- function(){
 # tatort <- load_sf_tatort()
 
 
+
+
+### Download SCB Län och kommuner i kodnummerordning 
+
+load_scb_koder <- function(){
+    
+    # find url on download website
+    links = scraplinks("https://www.scb.se/hitta-statistik/regional-statistik-och-kartor/regionala-indelningar/lan-och-kommuner/lan-och-kommuner-i-kodnummerordning/")
+    
+    httr::GET(paste0("https://www.scb.se",
+               links[endsWith(links$url, "xls") & !is.na(links$url),][[2]]), 
+        httr::write_disk(tf <- tempfile(fileext = ".xls")))
+    
+    
+    # download into the placeholder file
+    readxl::read_excel(tf, skip = 5)
+    }
+
+# scb_kod <- load_scb_koder()
+
+  
+  
