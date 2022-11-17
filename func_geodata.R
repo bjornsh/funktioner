@@ -105,7 +105,7 @@ summary_kommun_desotype <- function(df, deso_kolumn, value_kolumn, ag_fct){
 
 # combine kommun and deso type summaries
   t_slut <- left_join(t_kommun, t_desotyp, by = "kommun_namn") %>%
-    rename(Kommun = 1, 'Hela kommun' = 2, Centralort = 3, Tätort = 4, Landsbygd = 5)
+    rename(Kommun = 1, 'Hela kommun' = 2, Centralort = 3, 'Tätort' = 4, Landsbygd = 5)
   
   return(t_slut)
   }
