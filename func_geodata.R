@@ -71,5 +71,46 @@ rutid_till_centercoord <- function(df, position){ # position av kolumnen med Rut
 # rutid_till_centercoord(scb, 1) %>% mapview()
 
 
+#### calculate summary per kommun and deso type based on Deso ID
+summary_kommun_desotype <- function(df, deso_kolumn, value_kolumn, ag_fct){
+  # deso_kolumn: column with Deso ID
+  # value_kolumn: column to be summarised
+  # ag_fct: function used to aggregate data, eg mean, median
+  
+  # kommun summary
+  t_kommun <- df %>% 
+    filter(!is.na({{value_kolumn}}), !is.na({{deso_kolumn}})) %>%
+    mutate(value_kolumn = as.numeric({{value_kolumn}})) %>%
+    mutate(kommun_kod = substr({{deso_kolumn}}, 1, 4),
+           tatort = ifelse(substr({{deso_kolumn}}, 5, 5) == "A", "landsbygd",
+                           ifelse(substr({{deso_kolumn}}, 5, 5) == "B", "tatort", "centralort"))) %>%
+    left_join(., scb_kod, by = c("kommun_kod" = "Code")) %>%
+    rename(kommun_namn = Name) %>%
+    group_by(kommun_namn) %>%
+    summarise(resultat = ag_fct(value_kolumn, na.rm = TRUE)) 
+	
+	# Desotyp summary
+  t_desotyp <- df %>%
+    filter(!is.na({{value_kolumn}}), !is.na({{deso_kolumn}})) %>%
+    mutate(value_kolumn = as.numeric({{value_kolumn}})) %>%
+    mutate(kommun_kod = substr({{deso_kolumn}}, 1, 4),
+           tatort = ifelse(substr({{deso_kolumn}}, 5, 5) == "A", "landsbygd",
+                           ifelse(substr({{deso_kolumn}}, 5, 5) == "B", "tatort", "centralort"))) %>%
+    left_join(., scb_kod, by = c("kommun_kod" = "Code")) %>%
+    rename(kommun_namn = Name) %>%
+    group_by(kommun_namn, tatort) %>%
+    summarise(resultat = ag_fct(value_kolumn, na.rm = TRUE)) %>%
+    pivot_wider(names_from = tatort, values_from = resultat) %>%
+    select(kommun_namn, centralort, tatort, landsbygd)
 
+# combine kommun and deso type summaries
+  t_slut <- left_join(t_kommun, t_desotyp, by = "kommun_namn") %>%
+    rename(Kommun = 1, 'Hela kommun' = 2, Centralort = 3, Tätort = 4, Landsbygd = 5)
+  
+  return(t_slut)
+  }
 
+# Example
+
+# summary_deso_typ(df, kolumn1, kolumn2, mean)
+# summary_deso_typ(df, kolumn1, kolumn2, median)
