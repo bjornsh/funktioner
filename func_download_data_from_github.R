@@ -105,6 +105,39 @@ scraplinks <- function(url){
 }
 
 
+### Download and load DeSO geodatabase from SCB, ie latest data
+
+load_sf_deso2 <- function(){
+  
+  # create temp directory
+  td = tempdir()
+  # create the placeholder file
+  tf = tempfile(tmpdir=td, fileext=".zip")
+  
+  # find url on download website
+  links = scraplinks("https://www.scb.se/vara-tjanster/oppna-data/oppna-geodata/deso--demografiska-statistikomraden/")
+  
+  # download into the placeholder file
+  download.file(paste0("https://www.scb.se",
+                       links[links$link == "Geopackage (zip fil)",][[2]]), 
+                tf)
+  
+  # get name of the file ending with .shp
+  fname = unzip(tf, list=TRUE)$Name[grep("\\.gpkg$", unzip(tf, list=TRUE)$Name, ignore.case = T)]
+  
+  # unzip all files to the temporary directory
+  unzip(tf, exdir=td, overwrite=TRUE)
+  
+  # identify full path to extracted file ending with .shp
+  fpath = file.path(td, fname)
+  
+  # load the shapefile into R
+  sf::st_read(fpath, options = "ENCODING=WINDOWS-1252")
+}
+
+# deso <- load_sf_deso2()
+
+
 
 
 ### Download and load Regso shapefile from SCB
