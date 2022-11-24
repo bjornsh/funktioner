@@ -209,7 +209,7 @@ load_sf_tatort <- function(){
 
 
 
-### Download SCB Län och kommuner i kodnummerordning 
+### Download SCB Län och kommuner i kodnummerordning från scb.se
 
 load_scb_koder <- function(){
     
@@ -227,5 +227,10 @@ load_scb_koder <- function(){
 
 # scb_kod <- load_scb_koder()
 
-  
+### Download SCB Län och kommuner i kodnummerordning från Github (backup)
+
+load_scb_koder2 <- function(){
+GET("https://github.com/bjornsh/gis_data/raw/main/scb_kod.xlsx", write_disk(tf <- tempfile(fileext = ".xlsx")))
+df <- read_excel(tf, skip = 5)
+}  
   
