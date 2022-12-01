@@ -61,6 +61,26 @@ scb_pop_region_gender_age <- function() {
 # dat <- scb_pop_region_gender_age()
 
 
+### population per km2 per region and year
+scb_popkm2_region <- function() { 
+  x <- readr::read_delim("https://www.statistikdatabasen.scb.se/sq/131966.csv",
+                    ",", escape_double = FALSE,
+                    locale = locale(encoding = "ISO-8859-1"),
+                    trim_ws = TRUE) %>%
+    select(-2) %>% 
+    tidyr::pivot_longer(!1, names_to = "year", values_to = "befolkning_km2") %>%
+    dplyr::mutate(lan_kod = substr(region, 1, 2),
+                  lan_namn = substr(region, 4, nchar(region))) %>%
+    dplyr::select(lan_kod, lan_namn, year, befolkning_km2)
+}
+
+# dat <- scb_popkm2_region()
+
+
+
+
+
+
 
 
 
@@ -134,3 +154,10 @@ readr::read_delim("https://www.statistikdatabasen.scb.se/sq/131947.csv",
   }
 
 # dat <- scb_pop_tatort_gender()
+
+
+
+
+
+
+
